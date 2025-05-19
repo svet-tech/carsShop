@@ -48,23 +48,23 @@ function showItems() {
         itemText.className = 'item-text'
 
         const itemPrice = document.createElement('span')
-        itemPrice.textContent = 'Цена: ' + item.price + ' y.e.'
+        itemPrice.textContent = 'Цена: ' + item.price + ' руб.'
         itemPrice.className = 'item-price'
 
         const itemImage = document.createElement('img')
         itemImage.src = item.imageSrc
         itemImage.className = 'item-img'
 
-        const addButton = document.createElement('button')
-        addButton.textContent = 'Добавить'
-        addButton.onclick = () => {
+        const actionButton = document.createElement('button')
+        actionButton.textContent = 'Добавить'
+        actionButton.onclick = () => {
             addItem(item.id)
         }
         cardInfo.appendChild(itemText)
         cardInfo.appendChild(itemPrice)
 
         card.appendChild(cardInfo)
-        card.appendChild(addButton)
+        card.appendChild(actionButton)
 
         wrapToCard.appendChild(card)
         wrapToCard.appendChild(itemImage)
@@ -77,34 +77,55 @@ function showItems() {
 }
 
 function addItem(id) {
-    const addItem = items.find((item) => item.id === id)
-    cart.push(addItem)
+    const itemInCart = cart.find((item) => item.id === id)
+    if (itemInCart) {
+        itemInCart.quantity++
+    } else {
+        const newItem = items.find((item) => item.id === id)
+        cart.push({
+            ...newItem, quantity: 1
+        })
+    }
 
+    console.log(itemInCart)
     updateCart()
 }
 
 function deleteFromCart(id) {
-    const filteredArr = cart.filter((cartItem) => cartItem.id !== id)
-    cart = filteredArr
-    updateCart()
+    const itemCart = cart.find((item) => item.id === id)
+    if (itemCart && (itemCart.quantity > 1)) {
+        itemCart.quantity--
+    } else {
+        const filteredArr = cart.filter((cartItem) => cartItem.id !== id)
+        cart = filteredArr
+    }
 
+    updateCart()
 }
+
+
 // function increaseQuantity(id) {
 
 // }
 
 
-function decreaseQuantity(id) {
-    const cartItem = cart.find((item) => item.id === id)
-    deleteFromCart(id)
-    updateCart()
-}
+// function decreaseQuantity(id) {
+//     const cartItem = cart.find((item) => item.id === id)
+//     deleteFromCart(id)
+//     updateCart()
+// }
 
 function updateCart(id) {
     const container = document.getElementById('cart-item')
+    const total = document.createElement('div')
+    total.className = 'total'
     container.innerHTML = ''
 
+    let totalPrice = 0
+
     cart.forEach((cartItem) => {
+        totalPrice += cartItem.price * cartItem.quantity
+
         const wrapToCard = document.createElement('div')
         wrapToCard.className = 'card-wrap'
 
@@ -119,36 +140,41 @@ function updateCart(id) {
         itemText.className = 'item-text'
 
         const itemPrice = document.createElement('span')
-        itemPrice.textContent = 'Цена: ' + cartItem.price + ' y.e.'
+        itemPrice.textContent = 'Цена: ' + cartItem.price + ' руб.'
         itemPrice.className = 'item-price'
 
         const itemImage = document.createElement('img')
         itemImage.src = cartItem.imageSrc
         itemImage.className = 'item-img'
 
-        const addButton = document.createElement('button')
-        addButton.textContent = 'Удалить'
-        addButton.onclick = () => {
+        const actionButton = document.createElement('button')
+        actionButton.textContent = 'Удалить'
+        actionButton.onclick = () => {
             deleteFromCart(cartItem.id)
         }
+        
+        const quantity = document.createElement('span')
+        quantity.textContent = 'Кол-во: ' + cartItem.quantity + 'шт'
+
 
         // const decreaseButton = document.createElement('button')
         // decreaseButton.textContent = 'Удалить'
         // decreaseButton.onclick = () => decreaseQuantity(cartItem.id)
 
-
         cardInfo.appendChild(itemText)
         cardInfo.appendChild(itemPrice)
+        cardInfo.appendChild(quantity)
 
         card.appendChild(cardInfo)
-        card.appendChild(addButton)
+        card.appendChild(actionButton)
 
         wrapToCard.appendChild(card)
         wrapToCard.appendChild(itemImage)
 
         container.appendChild(wrapToCard)
-
+        container.appendChild(total)
     })
+    total.textContent = 'Всего: ' + totalPrice + ' у.е.'
 }
 
 
